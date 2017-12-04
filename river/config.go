@@ -9,6 +9,7 @@ import (
 )
 
 type SourceConfig struct {
+	//命名：首字母大写是公有的，首字母小写是私有的
 	Schema string   `toml:"schema"`
 	Tables []string `toml:"tables"`
 }
@@ -54,6 +55,7 @@ func NewConfigWithFile(name string) (*Config, error) {
 }
 
 func NewConfig(data string) (*Config, error) {
+	//初始化结构体，不能使用*Config
 	var c Config
 
 	_, err := toml.Decode(data, &c)

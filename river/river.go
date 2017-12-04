@@ -45,11 +45,12 @@ func NewRiver(c *Config) (*River, error) {
 	r.syncCh = make(chan interface{}, 4096)
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
+	//加载master info并设置最后保存时间为当前时间
 	var err error
 	if r.master, err = loadMasterInfo(c.DataDir); err != nil {
 		return nil, errors.Trace(err)
 	}
-
+	//初始化Dumper,Syncer,并确认binlog 格式为ROW，gtid没有使用？
 	if err = r.newCanal(); err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -73,7 +74,7 @@ func NewRiver(c *Config) (*River, error) {
 	cfg.Password = r.c.ESPassword
 	cfg.Https = r.c.ESHttps
 	r.es = elastic.NewClient(cfg)
-
+	//启动http统计接口，返回数据库中的同步信息和
 	r.st = &stat{r: r}
 	go r.st.Run(r.c.StatAddr)
 
@@ -266,8 +267,9 @@ func ruleKey(schema string, table string) string {
 // Run syncs the data from MySQL and inserts to ES.
 func (r *River) Run() error {
 	r.wg.Add(1)
+	//开启数据消费者，消费者channel
 	go r.syncLoop()
-
+	//同步数据：1. dump if need 2. start sync Binlog connection and parse 3. seed data to consumer channel
 	pos := r.master.Position()
 	if err := r.canal.RunFrom(pos); err != nil {
 		log.Errorf("start canal err %v", err)

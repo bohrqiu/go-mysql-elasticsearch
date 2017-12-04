@@ -34,7 +34,7 @@ type posSaver struct {
 	pos   mysql.Position
 	force bool
 }
-
+//实现canal.EventHandler，处理binlog事件
 type eventHandler struct {
 	r *River
 }
@@ -59,7 +59,7 @@ func (h *eventHandler) OnXID(nextPos mysql.Position) error {
 	h.r.syncCh <- posSaver{nextPos, false}
 	return h.r.ctx.Err()
 }
-
+//binlog中增加一条变动信息
 func (h *eventHandler) OnRow(e *canal.RowsEvent) error {
 	rule, ok := h.r.rules[ruleKey(e.Table.Schema, e.Table.Name)]
 	if !ok {
@@ -140,6 +140,7 @@ func (r *River) syncLoop() {
 				reqs = append(reqs, v...)
 				needFlush = len(reqs) >= bulkSize
 			}
+			//定时刷新数据到es
 		case <-ticker.C:
 			needFlush = true
 		case <-r.ctx.Done():

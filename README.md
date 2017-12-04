@@ -200,3 +200,36 @@ If you like the project and want to buy me a cola, you can through:
 go-mysql-elasticsearch is still in development, and we will try to use it in production later. Any feedback is very welcome.
 
 Email: siddontang@gmail.com
+
+
+
+## 同步过程说明：
+
+`go-mysql-elasticsearch`采用生产者消费者模型来同步mysql数据到es。所以，也可以很灵活的把消费者换成其他数据源。
+
+### 1. 数据生产
+
+1. 检查本地是否有master.info文件
+2. 没有则执行`mysqldump`，从语句中获取`master.info`信息(如果存在，跳到第5部)
+
+	dump命令：
+
+		mysqldump --host=127.0.0.1 --port=3306 --user=root --password=123456 --master-data --single-transaction --skip-lock-tables --compact --skip-opt --quick --no-create-info --skip-extended-insert openapi1 api_order_info --default-character-set=utf8
+
+	输出语句如下：
+
+		CHANGE MASTER TO MASTER_LOG_FILE='binlog.000002', MASTER_LOG_POS=811;
+		INSERT INTO `api_order_info` VALUES (1,'anonymous','test','g5a16a559428376e0b529b200','817ea2bc-f101-4a17-8acd-40437bd232d0','login','1.0','MD5',NULL,NULL,NULL,NULL,NULL,'2017-11-23 10:39:22','2017-11-23 10:39:22');
+	
+3. 解析master.info并写到本地文件
+4. 解析dump出来的sql，发送到`River.syncCh`
+5. 启动mysql同步，解析binlog事件，发送到`River.syncCh`
+
+
+### 2. 数据消费
+
+1. `River.syncLoop`从`River.syncCh`中批量获取事件
+2. 如果数据包>`bulk_size`，立即发送
+3. 如果数据包<`bulk_size`，并且间隔时间大于`flush_bulk_time`，立即发送
+
+	
