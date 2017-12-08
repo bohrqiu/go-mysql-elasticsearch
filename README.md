@@ -232,4 +232,12 @@ Email: siddontang@gmail.com
 2. 如果数据包>`bulk_size`，立即发送
 3. 如果数据包<`bulk_size`，并且间隔时间大于`flush_bulk_time`，立即发送
 
+
+
+
 	
+### updates:
+
+1. commit `b158ae66e357e92ab457fed3ceebfe04bbcc4695`
+
+    支持数据库表结构变动(增加字段)
