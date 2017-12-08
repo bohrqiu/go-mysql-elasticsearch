@@ -11,6 +11,7 @@ import (
 	"github.com/siddontang/go-mysql-elasticsearch/elastic"
 	"github.com/siddontang/go-mysql/canal"
 	log "github.com/sirupsen/logrus"
+	"github.com/siddontang/go-mysql/schema"
 )
 
 // In Elasticsearch, river is a pluggable service within Elasticsearch pulling data then indexing it into Elasticsearch.
@@ -137,6 +138,15 @@ func (r *River) newRule(schema, table string) error {
 	r.rules[key] = newDefaultRule(schema, table)
 	return nil
 }
+//当数据库表结构变动时，重新构建rule
+func (r *River) rebuildRule(t *schema.Table) error {
+	key := ruleKey(t.Schema, t.Name)
+	rule := newDefaultRule(t.Schema, t.Name)
+	rule.prepare()
+	rule.TableInfo = t
+	r.rules[key] =rule
+	return nil
+}
 
 func (r *River) parseSource() (map[string][]string, error) {
 	wildTables := make(map[string][]string, len(r.c.Sources))
@@ -192,6 +202,18 @@ func (r *River) parseSource() (map[string][]string, error) {
 	}
 
 	return wildTables, nil
+}
+
+func (r *River) prepareTableRule(db string, table string) error {
+	t, err := r.canal.GetTable(db, table)
+	if err != nil {
+		return err
+	}
+	err = r.rebuildRule(t)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *River) prepareRule() error {
