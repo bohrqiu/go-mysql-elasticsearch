@@ -35,6 +35,7 @@ type posSaver struct {
 	pos   mysql.Position
 	force bool
 }
+
 //实现canal.EventHandler，处理binlog事件
 type eventHandler struct {
 	r *River
@@ -56,9 +57,14 @@ func (h *eventHandler) OnDDL(nextPos mysql.Position, e *replication.QueryEvent) 
 	if len(mb[1]) == 0 {
 		mb[1] = e.Schema
 	}
-
-	log.Infof("re-prepare table %s.%s rule info, ddl: %s", mb[1], mb[2], e.Query)
-	err := h.r.prepareTableRule(string(mb[1]), string(mb[2]))
+	schema := string(mb[1])
+	table := string(mb[2])
+	_, ok := h.r.rules[ruleKey(schema, table)]
+	if !ok {
+		return nil
+	}
+	log.Infof("re-prepare table %s.%s rule info, ddl: %s", schema, table, e.Query)
+	err := h.r.prepareTableRule(schema, table)
 	if err != nil {
 		log.Errorf("get %s.%s information err: %v", mb[1], mb[2], err)
 		return errors.Trace(err)
@@ -72,6 +78,7 @@ func (h *eventHandler) OnXID(nextPos mysql.Position) error {
 	h.r.syncCh <- posSaver{nextPos, false}
 	return h.r.ctx.Err()
 }
+
 //binlog中增加一条变动信息
 func (h *eventHandler) OnRow(e *canal.RowsEvent) error {
 	rule, ok := h.r.rules[ruleKey(e.Table.Schema, e.Table.Name)]
@@ -366,7 +373,7 @@ func (r *River) makeInsertReqData(req *elastic.BulkRequest, rule *Rule, values [
 		}
 
 		//if added column ? (not safe, use your own risk)
-		if i > len(values) - 1 {
+		if i > len(values)-1 {
 			continue
 		}
 
@@ -398,7 +405,7 @@ func (r *River) makeUpdateReqData(req *elastic.BulkRequest, rule *Rule,
 		}
 
 		//if added column ? (not safe, use your own risk)
-		if i > len(afterValues) - 1 {
+		if i > len(afterValues)-1 {
 			continue
 		}
 
@@ -472,7 +479,6 @@ func GetPKValues(table *schema.Table, row []interface{}) ([]interface{}, error) 
 
 	return values, nil
 }
-
 
 func (r *River) getParentID(rule *Rule, row []interface{}, columnName string) (string, error) {
 	index := rule.TableInfo.FindColumn(columnName)
