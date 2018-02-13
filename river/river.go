@@ -204,15 +204,16 @@ func (r *River) parseSource() (map[string][]string, error) {
 	return wildTables, nil
 }
 
-func (r *River) prepareTableRule(db string, table string) error {
+func (r *River) prepareTableRule(db string, table string,oldRule *Rule) error {
 	t, err := r.canal.GetTable(db, table)
 	if err != nil {
 		return err
 	}
-	err = r.rebuildRule(t)
-	if err != nil {
-		return err
-	}
+	oldRule.TableInfo = t;
+	//err = r.rebuildRule(t)
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
 

@@ -59,12 +59,12 @@ func (h *eventHandler) OnDDL(nextPos mysql.Position, e *replication.QueryEvent) 
 	}
 	schema := string(mb[1])
 	table := string(mb[2])
-	_, ok := h.r.rules[ruleKey(schema, table)]
+	oldRule, ok := h.r.rules[ruleKey(schema, table)]
 	if !ok {
 		return nil
 	}
 	log.Infof("re-prepare table %s.%s rule info, ddl: %s", schema, table, e.Query)
-	err := h.r.prepareTableRule(schema, table)
+	err := h.r.prepareTableRule(schema, table,oldRule)
 	if err != nil {
 		log.Errorf("get %s.%s information err: %v", mb[1], mb[2], err)
 		return errors.Trace(err)
