@@ -24,6 +24,7 @@ type Config struct {
 	ESAddr     string `toml:"es_addr"`
 	ESUser     string `toml:"es_user"`
 	ESPassword string `toml:"es_pass"`
+	ESParam    string `toml:"es_param"`
 
 	StatAddr string `toml:"stat_addr"`
 

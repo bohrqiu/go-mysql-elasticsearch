@@ -74,6 +74,7 @@ func NewRiver(c *Config) (*River, error) {
 	cfg.User = r.c.ESUser
 	cfg.Password = r.c.ESPassword
 	cfg.Https = r.c.ESHttps
+	cfg.Param = r.c.ESParam
 	r.es = elastic.NewClient(cfg)
 	//启动http统计接口，返回数据库中的同步信息和
 	r.st = &stat{r: r}

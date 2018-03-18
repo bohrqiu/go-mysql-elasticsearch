@@ -19,6 +19,7 @@ type Client struct {
 	Addr     string
 	User     string
 	Password string
+	Param    string
 
 	c *http.Client
 }
@@ -28,6 +29,7 @@ type ClientConfig struct {
 	Addr     string
 	User     string
 	Password string
+	Param    string
 }
 
 func NewClient(conf *ClientConfig) *Client {
@@ -36,6 +38,7 @@ func NewClient(conf *ClientConfig) *Client {
 	c.Addr = conf.Addr
 	c.User = conf.User
 	c.Password = conf.Password
+	c.Param = conf.Param
 
 	if conf.Https {
 		c.Protocol = "https"
@@ -157,15 +160,15 @@ type BulkResponseItem struct {
 }
 
 type MappingResponse struct {
-	Code   int
+	Code    int
 	Mapping Mapping
 }
 
 type Mapping map[string]struct {
 	Mappings map[string]struct {
 		Properties map[string]struct {
-			Type	string          `json:"type"`
-			Fields	interface{} 	`json:"fields"`
+			Type   string      `json:"type"`
+			Fields interface{} `json:"fields"`
 		} `json:"properties"`
 	} `json:"mappings"`
 }
@@ -225,7 +228,9 @@ func (c *Client) DoBulk(url string, items []*BulkRequest) (*BulkResponse, error)
 			return nil, errors.Trace(err)
 		}
 	}
-
+	if !(c.Param == "") {
+		url = url + c.Param
+	}
 	resp, err := c.DoRequest("POST", url, &buf)
 	if err != nil {
 		return nil, errors.Trace(err)
@@ -276,7 +281,7 @@ func (c *Client) CreateMapping(index string, docType string, mapping map[string]
 	return errors.Trace(err)
 }
 
-func (c *Client) GetMapping(index string, docType string) (*MappingResponse, error){
+func (c *Client) GetMapping(index string, docType string) (*MappingResponse, error) {
 	reqUrl := fmt.Sprintf("%s://%s/%s/%s/_mapping", c.Protocol, c.Addr,
 		url.QueryEscape(index),
 		url.QueryEscape(docType))
@@ -335,7 +340,9 @@ func (c *Client) Update(index string, docType string, id string, data map[string
 		url.QueryEscape(index),
 		url.QueryEscape(docType),
 		url.QueryEscape(id))
-
+	if !(c.Param == "") {
+		reqUrl = reqUrl + c.Param
+	}
 	r, err := c.Do("PUT", reqUrl, data)
 	if err != nil {
 		return errors.Trace(err)
@@ -383,7 +390,6 @@ func (c *Client) Delete(index string, docType string, id string) error {
 // only support parent in 'Bulk' related apis
 func (c *Client) Bulk(items []*BulkRequest) (*BulkResponse, error) {
 	reqUrl := fmt.Sprintf("%s://%s/_bulk", c.Protocol, c.Addr)
-
 	return c.DoBulk(reqUrl, items)
 }
 

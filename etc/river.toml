@@ -8,10 +8,12 @@ my_charset = "utf8"
 # Set true when elasticsearch use https
 #es_https = false
 # Elasticsearch address
-es_addr = "127.0.0.1:9200"
+es_addr = "103.36.135.215:9002"
 # Elasticsearch user and password, maybe set by shield, nginx, or x-pack
 es_user = "elastic"
 es_pass = "changeme"
+# es url parameter
+es_param= "?pipeline=addReceiveTime"
 
 # Path to store data, like master.info, if not set or empty,
 # we must use this to support breakpoint resume syncing.
@@ -22,7 +24,7 @@ data_dir = "./var"
 stat_addr = "127.0.0.1:12800"
 
 # pseudo server id like a slave
-server_id = 1001
+server_id = 1004
 
 # mysql or mariadb
 flavor = "mysql"
@@ -51,7 +53,7 @@ schema = "openapi1"
 # Only below tables will be synced into Elasticsearch.
 # "t_[0-9]{4}" is a wildcard table format, you can use it if you have many sub tables, like table_0000 - table_1023
 # I don't think it is necessary to sync all tables in a database.
-tables = ["api_order_info"]
+tables = ["api_order_info_[0-9]{1,4}"]
 
 # Below is for special rule mapping
 
@@ -66,8 +68,9 @@ tables = ["api_order_info"]
 # +-------+--------------+------+-----+---------+-------+
 #
 # The table `t` will be synced to ES index `test` and type `t`.
-# [[rule]]
-# schema = "openapi1"
-# table = "api_order_info"
-# index = "api_order_info"
-# type = "api_order_info"
+
+[[rule]]
+schema = "openapi1"
+table = "api_order_info_[0-9]{1,4}"
+index = "openapi"
+type = "api_order_info"
