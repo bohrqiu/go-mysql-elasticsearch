@@ -38,17 +38,17 @@ mysqldump = "mysqldump"
 #skip_master_data = false
 
 # minimal items to be inserted in one bulk
-bulk_size = 128
+bulk_size = 512
 
 # force flush the pending requests if we don't have enough items >= bulk_size
-flush_bulk_time = "200ms"
+flush_bulk_time = "1000ms"
 
 # Ignore table without primary key
 skip_no_pk_table = false
 
 # MySQL data source
 [[source]]
-schema = "openapi1"
+schema = "openapi2"
 
 # Only below tables will be synced into Elasticsearch.
 # "t_[0-9]{4}" is a wildcard table format, you can use it if you have many sub tables, like table_0000 - table_1023
@@ -70,7 +70,7 @@ tables = ["api_order_info_[0-9]{1,4}"]
 # The table `t` will be synced to ES index `test` and type `t`.
 
 [[rule]]
-schema = "openapi1"
+schema = "openapi2"
 table = "api_order_info_[0-9]{1,4}"
 index = "openapi"
 type = "api_order_info"
