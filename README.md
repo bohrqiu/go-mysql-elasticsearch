@@ -238,6 +238,7 @@ Email: siddontang@gmail.com
 	
 ### updates:
 
-1. commit `b158ae66e357e92ab457fed3ceebfe04bbcc4695`
-
-    支持数据库表结构变动(增加字段)
+1. 支持数据库表结构变动(增加字段)
+2. add es pipeline support
+3. add password encrypt
+4. add dumpIgnoreTimeZone支持dump时添加`--skip-tz-utc`参数  
