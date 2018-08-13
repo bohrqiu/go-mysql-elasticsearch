@@ -9,6 +9,7 @@ import (
 
 	"github.com/juju/errors"
 	. "github.com/siddontang/go-mysql/mysql"
+	log "github.com/sirupsen/logrus"
 )
 
 // Unlick mysqldump, Dumper is designed for parsing and syning data easily.
@@ -175,6 +176,7 @@ func (d *Dumper) Dump(w io.Writer) error {
 		args = append(args, fmt.Sprintf("--default-character-set=%s", d.Charset))
 	}
 
+	log.Infof("dump exec[%s] params:%s", d.ExecutionPath, strings.Join(args, " "))
 	cmd := exec.Command(d.ExecutionPath, args...)
 
 	cmd.Stderr = d.ErrOut
