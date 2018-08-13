@@ -34,6 +34,8 @@ type Dumper struct {
 
 	masterDataSkipped bool
 	maxAllowedPacket  int
+
+	dumpIgnoreTimeZone bool
 }
 
 func NewDumper(executionPath string, addr string, user string, password string) (*Dumper, error) {
@@ -77,6 +79,10 @@ func (d *Dumper) SkipMasterData(v bool) {
 
 func (d *Dumper) SetMaxAllowedPacket(i int) {
 	d.maxAllowedPacket = i
+}
+
+func (d *Dumper) SetDumpIgnoreTimeZone(dumpIgnoreTimeZone bool) {
+	d.dumpIgnoreTimeZone = dumpIgnoreTimeZone
 }
 
 func (d *Dumper) AddDatabases(dbs ...string) {
@@ -139,6 +145,10 @@ func (d *Dumper) Dump(w io.Writer) error {
 
 	// Multi row is easy for us to parse the data
 	args = append(args, "--skip-extended-insert")
+
+	if d.dumpIgnoreTimeZone {
+		args = append(args, "--skip-tz-utc")
+	}
 
 	for db, tables := range d.IgnoreTables {
 		for _, table := range tables {

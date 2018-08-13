@@ -95,6 +95,7 @@ func (r *River) newCanal() error {
 	cfg.Dump.ExecutionPath = r.c.DumpExec
 	cfg.Dump.DiscardErr = false
 	cfg.Dump.SkipMasterData = r.c.SkipMasterData
+	cfg.Dump.DumpIgnoreTimeZone=r.c.DumpIgnoreTimeZone
 
 	var err error
 	r.canal, err = canal.NewCanal(cfg)

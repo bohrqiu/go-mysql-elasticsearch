@@ -147,7 +147,7 @@ func (c *Canal) prepareDumper() error {
 
 	c.dumper.SkipMasterData(c.cfg.Dump.SkipMasterData)
 	c.dumper.SetMaxAllowedPacket(c.cfg.Dump.MaxAllowedPacketMB)
-
+	c.dumper.SetDumpIgnoreTimeZone(c.cfg.Dump.DumpIgnoreTimeZone)
 	for _, ignoreTable := range c.cfg.Dump.IgnoreTables {
 		if seps := strings.Split(ignoreTable, ","); len(seps) == 2 {
 			c.dumper.AddIgnoreTables(seps[0], seps[1])

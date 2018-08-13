@@ -33,6 +33,8 @@ type DumpConfig struct {
 
 	// Set to change the default max_allowed_packet size
 	MaxAllowedPacketMB int `toml:"max_allowed_packet_mb"`
+
+	DumpIgnoreTimeZone bool `toml:"dump_Ignore_Time_Zone"`
 }
 
 type Config struct {

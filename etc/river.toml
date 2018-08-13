@@ -2,7 +2,7 @@
 # user must have replication privilege in MySQL.
 my_addr = "127.0.0.1:3306"
 my_user = "root"
-my_pass = "123456"
+my_pass = "e{6leGPIac1R6Nz1Tkk8QdRg==}"
 my_charset = "utf8"
 
 # Set true when elasticsearch use https
@@ -32,6 +32,9 @@ flavor = "mysql"
 # mysqldump execution path
 # if not set or empty, ignore mysqldump.
 mysqldump = "mysqldump"
+
+# mysqldump if add --skip-tz-utc
+dump_Ignore_Time_Zone=true
 
 # if we have no privilege to use mysqldump with --master-data,
 # we must skip it.
