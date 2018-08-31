@@ -97,6 +97,12 @@ func (r *River) newCanal() error {
 	cfg.Dump.SkipMasterData = r.c.SkipMasterData
 	cfg.Dump.DumpIgnoreTimeZone=r.c.DumpIgnoreTimeZone
 
+	for _, s := range r.c.Sources {
+		for _, t := range s.Tables {
+			cfg.IncludeTableRegex = append(cfg.IncludeTableRegex, s.Schema+"\\."+t)
+		}
+	}
+
 	var err error
 	r.canal, err = canal.NewCanal(cfg)
 	return errors.Trace(err)
